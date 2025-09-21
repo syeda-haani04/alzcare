@@ -1,18 +1,44 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 import random
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
 
 app = Flask(__name__)
 api = Api(app)
 
 
+# Load and preprocess data at startup
+df = pd.read_csv('alzheimers_disease_data.csv')
+
+# Drop columns not needed for prediction
+drop_cols = ['PatientID', 'Diagnosis', 'DoctorInCharge']
+X = df.drop(columns=drop_cols)
+y = df['Diagnosis']
+
+# Encode categorical columns
+label_encoders = {}
+for col in X.select_dtypes(include=['object']).columns:
+    le = LabelEncoder()
+    X[col] = le.fit_transform(X[col].astype(str))
+    label_encoders[col] = le
+
+# Train model
+model = RandomForestClassifier(random_state=42)
+model.fit(X, y)
+
 def process_patient_data_and_predict_risk(patient_data_payload):
     print("Processing data:", patient_data_payload)
-    simulated_risk_score = round(random.uniform(0.0, 1.0), 4)
-    processed_data = {}
-    for key, value in patient_data_payload.items():
-        processed_data[key] = value
-    return simulated_risk_score, processed_data
+    input_df = pd.DataFrame([patient_data_payload])
+    input_df = input_df[X.columns]
+    for col, le in label_encoders.items():
+        input_df[col] = le.transform(input_df[col].astype(str))
+    risk_score = model.predict_proba(input_df)[0][1]
+    print("Calculated risk_score:", risk_score)
+    processed_data = patient_data_payload
+    return round(risk_score, 4), processed_data
+
 
 class PatientDataSubmission(Resource):
     def post(self):
@@ -47,12 +73,11 @@ api.add_resource(PatientDataSubmission, "/api/patientdata")
 
 class HelloWorld(Resource):
     def get(self):
-        return {"message": "Flask server is running!"}
+        return {"message": "Flask server is running"}
 api.add_resource(HelloWorld, "/hello")
 
 
 if __name__ == "__main__":
     print("Starting Flask server...")
-    # For consistency when using `flask run`, it's better to use `flask run --debug`
-    # However, this app.run() will work if you execute `python3 app.py`
+    # use flask run --debug
     app.run(debug=True, host='0.0.0.0', port=5000)
