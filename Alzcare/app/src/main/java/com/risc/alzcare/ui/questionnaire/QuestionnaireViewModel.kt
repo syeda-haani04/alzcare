@@ -13,7 +13,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 val sampleQuestions: List<Question> = listOf(
-    Question(id = "Age", text = "What is your current age? (60-90)", answerType = AnswerType.NUMBER_INTEGER),
+    Question(
+        id = "Age",
+        text = "What is your current age? (60-90)",
+        answerType = AnswerType.NUMBER_INTEGER
+    ),
     Question(
         id = "Gender",
         text = "What is your gender?",
@@ -119,7 +123,11 @@ val sampleQuestions: List<Question> = listOf(
         answerType = AnswerType.SINGLE_CHOICE,
         options = getYesNoOptions()
     ),
-    Question(id = "ADL", text = "What is your Activities of Daily Living (ADL) score? (0-10, lower scores indicate greater impairment)", answerType = AnswerType.NUMBER_INTEGER),
+    Question(
+        id = "ADL",
+        text = "What is your Activities of Daily Living (ADL) score? (0-10, lower scores indicate greater impairment)",
+        answerType = AnswerType.NUMBER_INTEGER
+    ),
     Question(
         id = "Confusion",
         text = "Do you experience episodes of confusion?",

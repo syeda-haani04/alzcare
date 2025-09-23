@@ -11,14 +11,14 @@ import retrofit2.http.POST
 
 interface ApiInterface {
 
-    @GET("hello")
-    suspend fun getData(): Response<HelloResponse>
+    //@GET("hello")
+    //suspend fun getData(): Response<HelloResponse>
 
     @POST("api/patientdata")
     suspend fun submitPatientData(@Body payload: PatientDataPayload): Response<PostResponse>
 }
 
-@Serializable
-data class HelloResponse(
-    val message: String
-)
+//@Serializable
+//data class HelloResponse(
+//    val message: String
+//)
