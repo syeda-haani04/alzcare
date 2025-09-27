@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.squareup.converter.kotlinx.serialization)
 
+    // material icons
+    implementation ("androidx.compose.material:material-icons-extended")
+
     // core dependencies
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
