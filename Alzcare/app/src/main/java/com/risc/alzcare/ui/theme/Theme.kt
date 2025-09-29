@@ -12,16 +12,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primaryContainer = Color.White, // circles
     //primary = customGreen,
-    secondary = PurpleGrey80,
+    //secondary = Color.White, //button colour options
+    //onSecondary = customPurple,
     tertiary = Pink80,
     background = customPurple,
     surface = customPurple,
     onPrimary = Color.White,
     onBackground = Color.White,
-    onSurfaceVariant = Color.White,
     outline = Color.White,
+
+    // options buttons
+    surfaceVariant = Color.White,
+    onSurfaceVariant = customPurple,
+
+    // next button
+    tertiaryContainer = nextButtonPurple,
+    onTertiaryContainer = Color.White,
+
+    // previous button
+    secondaryContainer = previousButtonPurple,
+    onSecondaryContainer = Color.Transparent,
+
+    // question x of y
+    onTertiary = customDarkPurple,
 )
 
 private val LightColorScheme = lightColorScheme(
