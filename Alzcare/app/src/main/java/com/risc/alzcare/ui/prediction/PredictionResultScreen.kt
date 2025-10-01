@@ -19,11 +19,7 @@ fun PredictionResultScreen(
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Prediction Details") }
-            )
-        }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier

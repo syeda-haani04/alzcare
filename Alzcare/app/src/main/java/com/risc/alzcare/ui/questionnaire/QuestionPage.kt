@@ -221,7 +221,6 @@ fun QuestionPage(
                     question.options?.forEach { (optionText, optionCode) ->
                         val isSelected = (answerCode == optionCode)
                         val backgroundColor = if (isSelected) {
-                            // In QuestionPage.kt, inside the SINGLE_CHOICE part:
                             Log.d("M3Default", "Default primaryContainer: ${MaterialTheme.colorScheme.primaryContainer}")
                             Log.d("M3Default", "Default onPrimaryContainer: ${MaterialTheme.colorScheme.onPrimaryContainer}")
                             MaterialTheme.colorScheme.primaryContainer

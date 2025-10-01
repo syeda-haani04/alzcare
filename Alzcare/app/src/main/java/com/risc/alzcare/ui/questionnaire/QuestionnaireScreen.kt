@@ -34,11 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.risc.alzcare.network.model.PostResponse
 import com.risc.alzcare.ui.theme.CirclesBackground
+import com.risc.alzcare.ui.theme.myLayerConfigs
 import com.risc.alzcare.ui.utils.SimpleTtsManager
 import com.risc.alzcare.ui.utils.launchSpeechToTextIntent
 import kotlinx.coroutines.launch
@@ -215,6 +217,17 @@ fun QuestionnaireScreen(
         derivedStateOf { questions.isNotEmpty() && pagerState.currentPage == questions.size - 1 }
     }
 
+    val questionBasedOffsetValue by remember {
+        derivedStateOf {
+            if (pagerState.pageCount > 1) {
+                val progress = pagerState.currentPage.toFloat() / (pagerState.pageCount - 1).toFloat()
+                progress - 0.5f
+            } else {
+                0f
+            }
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Transparent,
@@ -222,8 +235,9 @@ fun QuestionnaireScreen(
     ) {
         CirclesBackground(
             modifier = Modifier.fillMaxSize(),
-
-        ) {
+                layerConfigs = myLayerConfigs,
+                questionBasedOffset = questionBasedOffsetValue, // Your existing offset
+            ) {
             Scaffold(
                 containerColor = Color.Transparent,
                 snackbarHost = { SnackbarHost(snackbarHostState) },

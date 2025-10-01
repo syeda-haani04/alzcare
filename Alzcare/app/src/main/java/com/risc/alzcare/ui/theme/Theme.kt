@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primaryContainer = Color.White, // circles
+    //primaryContainer = Color.White, // circles
     //primary = customGreen,
     //secondary = Color.White, //button colour options
     //onSecondary = customPurple,
