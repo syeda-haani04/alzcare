@@ -4,27 +4,23 @@ import random
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
+from llm_integration import get_next_steps
 
 app = Flask(__name__)
 api = Api(app)
 
-
-# Load and preprocess data at startup
 df = pd.read_csv('alzheimers_disease_data.csv')
 
-# Drop columns not needed for prediction
 drop_cols = ['PatientID', 'Diagnosis', 'DoctorInCharge']
 X = df.drop(columns=drop_cols)
 y = df['Diagnosis']
 
-# Encode categorical columns
 label_encoders = {}
 for col in X.select_dtypes(include=['object']).columns:
     le = LabelEncoder()
     X[col] = le.fit_transform(X[col].astype(str))
-    label_encoders[col] = le
+    label_encoders[col] = le 
 
-# Train model
 model = RandomForestClassifier(random_state=42)
 model.fit(X, y)
 
@@ -53,10 +49,10 @@ def process_patient_data_and_predict_risk(patient_data_payload):
     print("Calculated risk_score:", risk_score)
     processed_data = filled_payload
 
-    completeness = 1 - (len(missing_fields) / len(X.columns))  # 1 = all fields present
-    confidence = 1 - abs(risk_score - 0.5) * 2  # 1 = very confident (close to 0 or 1), 0 = uncertain
-    reliability_score = round(0.5 * completeness + 0.5 * confidence, 2)  # weighted average
-
+    completeness = 1 - (len(missing_fields) / len(X.columns))  # 1.0 = all fields present
+    confidence = 1 - abs(risk_score - 0.5) * 2  # 1.0 = very confident (close to 0 or 1), 0.0 = uncertain
+    reliability_score = round(completeness * confidence, 2)
+    
     return round(risk_score, 4), processed_data, reliability_score
 
 class PatientDataSubmission(Resource):
@@ -76,6 +72,16 @@ class PatientDataSubmission(Resource):
             print(f"Error during processing: {str(e)}")
             return {"status": "error", "success": False, "message": "Error processing patient data"}, 500
 
+        try:
+            next_steps = get_next_steps(patient_data_payload, risk_score, reliability_score)
+        except Exception as e:
+            error_str = str(e)
+            print(f"Error during LLM integration: {error_str}")
+            if "503" in error_str or "UNAVAILABLE" in error_str:
+                next_steps = "Cannot generate next steps as there were too many requests. Try again in 2 minutes."
+            else:
+                next_steps = "Could not generate next steps at this time."
+        
         response_payload = {
             "status": "success",
             "success": True,
@@ -83,7 +89,8 @@ class PatientDataSubmission(Resource):
             "patient_id": random.randint(1000, 9999),
             "risk_score": risk_score,
             "reliability_score": reliability_score,
-            "data": processed_data_for_response
+            "data": processed_data_for_response,
+            "next_steps": next_steps
         }
 
         return response_payload, 201   
@@ -99,5 +106,5 @@ api.add_resource(HelloWorld, "/hello")
 
 if __name__ == "__main__":
     print("Starting Flask server...")
-    # use flask run --debug
+    #context = ('localhost.pem', 'localhost-key.pem')
     app.run(debug=True, host='0.0.0.0', port=5000)
