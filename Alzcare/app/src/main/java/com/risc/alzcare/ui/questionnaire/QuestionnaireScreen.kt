@@ -34,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,7 +48,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuestionnaireScreen(
     viewModel: QuestionnaireViewModel = viewModel(),
-    onNavigateToPredictionResult: (response: PostResponse) -> Unit
+    onNavigateToPredictionResult: (response: PostResponse, offset:Float) -> Unit
 ) {
     Log.d("ScreenDebug", "Recomposing QuestionnaireScreen")
     val uiState by viewModel.uiState.collectAsState()
@@ -167,9 +166,20 @@ fun QuestionnaireScreen(
         }
     }
 
+    val questionBasedOffsetValue by remember {
+        derivedStateOf {
+            if (pagerState.pageCount > 1) {
+                val progress = pagerState.currentPage.toFloat() / (pagerState.pageCount - 1).toFloat()
+                progress - 0.5f
+            } else {
+                0f
+            }
+        }
+    }
+
     LaunchedEffect(uiState.predictionNavTrigger) {
         uiState.predictionNavTrigger?.let { responseData ->
-            onNavigateToPredictionResult(responseData)
+            onNavigateToPredictionResult(responseData, questionBasedOffsetValue)
             viewModel.predictionNavigated()
         }
     }
@@ -217,16 +227,7 @@ fun QuestionnaireScreen(
         derivedStateOf { questions.isNotEmpty() && pagerState.currentPage == questions.size - 1 }
     }
 
-    val questionBasedOffsetValue by remember {
-        derivedStateOf {
-            if (pagerState.pageCount > 1) {
-                val progress = pagerState.currentPage.toFloat() / (pagerState.pageCount - 1).toFloat()
-                progress - 0.5f
-            } else {
-                0f
-            }
-        }
-    }
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -236,7 +237,7 @@ fun QuestionnaireScreen(
         CirclesBackground(
             modifier = Modifier.fillMaxSize(),
                 layerConfigs = myLayerConfigs,
-                questionBasedOffset = questionBasedOffsetValue, // Your existing offset
+                questionBasedOffset = questionBasedOffsetValue,
             ) {
             Scaffold(
                 containerColor = Color.Transparent,
