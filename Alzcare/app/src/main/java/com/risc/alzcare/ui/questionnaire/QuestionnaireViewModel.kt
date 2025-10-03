@@ -1,8 +1,10 @@
 package com.risc.alzcare.ui.questionnaire
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.risc.alzcare.R
 import com.risc.alzcare.network.*
 import com.risc.alzcare.network.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,156 +13,145 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-val sampleQuestions: List<Question> = listOf(
-    Question(
-        id = "Age",
-        text = "What is your current age? (60-90)",
-        answerType = AnswerType.NUMBER_INTEGER
-    ),
-    Question(
-        id = "Gender",
-        text = "What is your gender?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = listOf("Male" to "0", "Female" to "1")
-    ),
-    Question(
-        id = "Ethnicity",
-        text = "What is your ethnicity?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = listOf(
-            "Caucasian" to "0",
-            "African American" to "1",
-            "Asian" to "2",
-            "Other" to "3"
-        )
-    ),
-    Question(
-        id = "EducationLevel",
-        text = "What is your highest level of education?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = listOf(
-            "None" to "0",
-            "High School" to "1",
-            "Bachelor's Degree" to "2",
-            "Higher Degree (Master's, PhD, etc.)" to "3"
-        )
-    ),
-    Question(id = "BMI", text = "What is your Body Mass Index (BMI)? (15-40, e.g., 24.5)", answerType = AnswerType.NUMBER_DECIMAL),
-    Question(
-        id = "Smoking",
-        text = "Do you currently smoke?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(id = "AlcoholConsumption", text = "How many units of alcohol do you consume weekly? (0-20 units)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "PhysicalActivity", text = "How many hours of physical activity do you engage in weekly? (0-10 hours)", answerType = AnswerType.NUMBER_DECIMAL),
-    Question(
-        id = "DietQuality",
-        text = "On a scale of 0 to 10, how would you rate your diet quality?",
-        answerType = AnswerType.NUMBER_INTEGER,
-        valueRange = 0f..10f
-    ),
-    Question(
-        id = "SleepQuality",
-        text = "On a scale of 4 to 10, how would you rate your sleep quality?",
-        answerType = AnswerType.NUMBER_INTEGER,
-        valueRange = 4f..10f
-    ),
-    Question(
-        id = "FamilyHistoryAlzheimers",
-        text = "Do you have a family history of Alzheimer's Disease?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "CardiovascularDisease",
-        text = "Have you been diagnosed with cardiovascular disease?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "Diabetes",
-        text = "Have you been diagnosed with diabetes?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "Depression",
-        text = "Have you been diagnosed with depression?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "HeadInjury",
-        text = "Do you have a history of significant head injury?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "Hypertension",
-        text = "Have you been diagnosed with hypertension (high blood pressure)?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(id = "SystolicBP", text = "What is your typical Systolic Blood Pressure (mmHg)? (90-180, e.g., 120)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "DiastolicBP", text = "What is your typical Diastolic Blood Pressure (mmHg)? (60-120, e.g., 80)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "CholesterolTotal", text = "What is your Total Cholesterol level (mg/dL)? (150-300)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "CholesterolLDL", text = "What is your LDL Cholesterol level (mg/dL)? (50-200)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "CholesterolHDL", text = "What is your HDL Cholesterol level (mg/dL)? (20-100)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "CholesterolTriglycerides", text = "What are your Triglycerides levels (mg/dL)? (50-400)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "MMSE", text = "What is your Mini-Mental State Examination (MMSE) score? (0-30, lower scores indicate impairment)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(id = "FunctionalAssessment", text = "What is your Functional Assessment score? (0-10, lower scores indicate greater impairment)", answerType = AnswerType.NUMBER_INTEGER),
-    Question(
-        id = "MemoryComplaints",
-        text = "Do you experience memory complaints?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "BehavioralProblems",
-        text = "Have you experienced behavioral problems recently?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "ADL",
-        text = "What is your Activities of Daily Living (ADL) score? (0-10, lower scores indicate greater impairment)",
-        answerType = AnswerType.NUMBER_INTEGER
-    ),
-    Question(
-        id = "Confusion",
-        text = "Do you experience episodes of confusion?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "Disorientation",
-        text = "Do you experience episodes of disorientation (e.g., to time or place)?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "PersonalityChanges",
-        text = "Have you noticed significant personality changes?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "DifficultyCompletingTasks",
-        text = "Do you have difficulty completing familiar tasks?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
-    ),
-    Question(
-        id = "Forgetfulness",
-        text = "Do you experience significant forgetfulness beyond what is typical?",
-        answerType = AnswerType.SINGLE_CHOICE,
-        options = getYesNoOptions()
+private fun getYesNoOptions(app: Application): List<Pair<String, String>> {
+    val res = app.resources
+    return listOf(
+        res.getString(R.string.option_yes) to "1",
+        res.getString(R.string.option_no) to "0"
     )
-)
+}
+
+private fun getQuestions(app: Application): List<Question> {
+    val res = app.resources
+    return listOf(
+        Question(
+            id = "Age",
+            text = res.getString(R.string.q_age_title),
+            answerType = AnswerType.NUMBER_INTEGER
+        ),
+        Question(
+            id = "Gender",
+            text = res.getString(R.string.q_gender_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = listOf(res.getString(R.string.gender_male) to "0", res.getString(R.string.gender_female) to "1")
+        ),
+        Question(
+            id = "EducationLevel",
+            text = res.getString(R.string.q_education_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = listOf(
+                res.getString(R.string.education_none) to "0",
+                res.getString(R.string.education_secondary) to "1",
+                res.getString(R.string.education_bachelors) to "2",
+                res.getString(R.string.education_masters) to "3"
+            )
+        ),
+        Question(
+            id = "Smoking",
+            text = res.getString(R.string.q_smoking_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(id = "AlcoholConsumption", text = res.getString(R.string.q_alcohol_title), answerType = AnswerType.NUMBER_INTEGER),
+        Question(id = "PhysicalActivity", text = res.getString(R.string.q_activity_title), answerType = AnswerType.NUMBER_DECIMAL),
+        Question(
+            id = "DietQuality",
+            text = res.getString(R.string.q_diet_title),
+            answerType = AnswerType.NUMBER_INTEGER,
+            valueRange = 0f..10f
+        ),
+        Question(
+            id = "SleepQuality",
+            text = res.getString(R.string.q_sleep_title),
+            answerType = AnswerType.NUMBER_INTEGER,
+            valueRange = 4f..10f
+        ),
+        Question(
+            id = "FamilyHistoryAlzheimers",
+            text = res.getString(R.string.q_family_history_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "CardiovascularDisease",
+            text = res.getString(R.string.q_cardiovascular_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Diabetes",
+            text = res.getString(R.string.q_diabetes_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Depression",
+            text = res.getString(R.string.q_depression_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "HeadInjury",
+            text = res.getString(R.string.q_head_injury_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Hypertension",
+            text = res.getString(R.string.q_hypertension_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(id = "CholesterolHDL", text = res.getString(R.string.q_hdl_cholesterol_title), answerType = AnswerType.NUMBER_INTEGER),
+        Question(id = "MMSE", text = res.getString(R.string.q_mmse_title), answerType = AnswerType.NUMBER_INTEGER),
+        Question(id = "FunctionalAssessment", text = res.getString(R.string.q_functional_assessment_title), answerType = AnswerType.NUMBER_INTEGER),
+        Question(
+            id = "MemoryComplaints",
+            text = res.getString(R.string.q_memory_complaints_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "BehavioralProblems",
+            text = res.getString(R.string.q_behavioral_problems_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Confusion",
+            text = res.getString(R.string.q_confusion_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Disorientation",
+            text = res.getString(R.string.q_disorientation_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "PersonalityChanges",
+            text = res.getString(R.string.q_personality_changes_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "DifficultyCompletingTasks",
+            text = res.getString(R.string.q_task_difficulty_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        ),
+        Question(
+            id = "Forgetfulness",
+            text = res.getString(R.string.q_forgetfulness_title),
+            answerType = AnswerType.SINGLE_CHOICE,
+            options = getYesNoOptions(app)
+        )
+    )
+}
 
 data class QuestionnaireUiState(
-    val questions: List<Question> = sampleQuestions,
+    val questions: List<Question>,
     val currentPage: Int = 0,
     val answers: Map<String, String> = emptyMap(),
     val isLastPage: Boolean = false,
@@ -169,14 +160,17 @@ data class QuestionnaireUiState(
     val submissionError: String? = null
 )
 
-class QuestionnaireViewModel : ViewModel() {
+class QuestionnaireViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _uiState = MutableStateFlow(QuestionnaireUiState())
-    val uiState: StateFlow<QuestionnaireUiState> = _uiState.asStateFlow()
+    private val _uiState: MutableStateFlow<QuestionnaireUiState>
+    val uiState: StateFlow<QuestionnaireUiState>
 
     private val apiService: ApiInterface = RetrofitInstance.api
 
     init {
+        val questions = getQuestions(application)
+        _uiState = MutableStateFlow(QuestionnaireUiState(questions = questions))
+        uiState = _uiState.asStateFlow()
         _uiState.update { it.copy(isLastPage = it.questions.isNotEmpty() && it.currentPage == it.questions.size - 1) }
     }
 
@@ -206,9 +200,7 @@ class QuestionnaireViewModel : ViewModel() {
                 val payload = PatientDataPayload(
                     Age = currentAnswers["Age"]?.toIntOrNull(),
                     Gender = currentAnswers["Gender"]?.toIntOrNull(),
-                    Ethnicity = currentAnswers["Ethnicity"]?.toIntOrNull(),
                     EducationLevel = currentAnswers["EducationLevel"]?.toIntOrNull(),
-                    BMI = currentAnswers["BMI"]?.toDoubleOrNull(),
                     Smoking = currentAnswers["Smoking"]?.toIntOrNull(),
                     AlcoholConsumption = currentAnswers["AlcoholConsumption"]?.toDoubleOrNull(),
                     PhysicalActivity = currentAnswers["PhysicalActivity"]?.toDoubleOrNull(),
@@ -220,17 +212,11 @@ class QuestionnaireViewModel : ViewModel() {
                     Depression = currentAnswers["Depression"]?.toIntOrNull(),
                     HeadInjury = currentAnswers["HeadInjury"]?.toIntOrNull(),
                     Hypertension = currentAnswers["Hypertension"]?.toIntOrNull(),
-                    SystolicBP = currentAnswers["SystolicBP"]?.toIntOrNull(),
-                    DiastolicBP = currentAnswers["DiastolicBP"]?.toIntOrNull(),
-                    CholesterolTotal = currentAnswers["CholesterolTotal"]?.toDoubleOrNull(),
-                    CholesterolLDL = currentAnswers["CholesterolLDL"]?.toDoubleOrNull(),
                     CholesterolHDL = currentAnswers["CholesterolHDL"]?.toDoubleOrNull(),
-                    CholesterolTriglycerides = currentAnswers["CholesterolTriglycerides"]?.toDoubleOrNull(),
                     MMSE = currentAnswers["MMSE"]?.toDoubleOrNull(),
                     FunctionalAssessment = currentAnswers["FunctionalAssessment"]?.toDoubleOrNull(),
                     MemoryComplaints = currentAnswers["MemoryComplaints"]?.toIntOrNull(),
                     BehavioralProblems = currentAnswers["BehavioralProblems"]?.toIntOrNull(),
-                    ADL = currentAnswers["ADL"]?.toDoubleOrNull(),
                     Confusion = currentAnswers["Confusion"]?.toIntOrNull(),
                     Disorientation = currentAnswers["Disorientation"]?.toIntOrNull(),
                     PersonalityChanges = currentAnswers["PersonalityChanges"]?.toIntOrNull(),

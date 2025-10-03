@@ -38,11 +38,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.risc.alzcare.R
 import kotlin.math.roundToInt
 
 @Composable
@@ -97,7 +99,7 @@ fun QuestionPage(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Question $currentQuestionNumber of $totalQuestions",
+                text = stringResource(R.string.question_progress, currentQuestionNumber, totalQuestions),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onTertiary,
                 textAlign = TextAlign.Center,
@@ -121,7 +123,7 @@ fun QuestionPage(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                    contentDescription = "Read question aloud",
+                    contentDescription = stringResource(R.string.speak_question_content_description),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp)
                 )
@@ -140,12 +142,12 @@ fun QuestionPage(
                     OutlinedTextField(
                         value = answerCode,
                         onValueChange = onAnswerCodeChanged,
-                        label = { Text("Your answer") },
+                        label = { Text(stringResource(R.string.text_answer_label)) },
                         modifier = Modifier.fillMaxWidth(optionsAndQuestionWidthFraction),
                         singleLine = true,
                         trailingIcon = {
                             IconButton(onClick = { onMicClicked(question.id, question.answerType) }) {
-                                Icon(Icons.Filled.Mic, "Speak your answer")
+                                Icon(Icons.Filled.Mic, stringResource(R.string.speak_answer_content_description))
                             }
                         },
                         colors = textFieldColors
@@ -161,7 +163,7 @@ fun QuestionPage(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Selected: ${sliderPosition.roundToInt()}",
+                                text = stringResource(R.string.selected_value, sliderPosition.roundToInt().toString()),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(bottom = 8.dp)
@@ -188,13 +190,13 @@ fun QuestionPage(
                         OutlinedTextField(
                             value = answerCode,
                             onValueChange = onAnswerCodeChanged,
-                            label = { Text("Your answer (whole number)") },
+                            label = { Text(stringResource(R.string.number_answer_label)) },
                             modifier = Modifier.fillMaxWidth(optionsAndQuestionWidthFraction),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             trailingIcon = {
                                 IconButton(onClick = { onMicClicked(question.id, question.answerType) }) {
-                                    Icon(Icons.Filled.Mic, "Speak your answer")
+                                    Icon(Icons.Filled.Mic, stringResource(R.string.speak_answer_content_description))
                                 }
                             },
                             colors = textFieldColors
@@ -205,13 +207,13 @@ fun QuestionPage(
                     OutlinedTextField(
                         value = answerCode,
                         onValueChange = onAnswerCodeChanged,
-                        label = { Text("Your answer (e.g., 24.5)") },
+                        label = { Text(stringResource(R.string.decimal_answer_label)) },
                         modifier = Modifier.fillMaxWidth(optionsAndQuestionWidthFraction),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
                         trailingIcon = {
                             IconButton(onClick = { onMicClicked(question.id, question.answerType) }) {
-                                Icon(Icons.Filled.Mic, "Speak your answer")
+                                Icon(Icons.Filled.Mic, stringResource(R.string.speak_answer_content_description))
                             }
                         },
                         colors = textFieldColors
@@ -235,35 +237,32 @@ fun QuestionPage(
                         val border = if (isSelected) {
                             null
                         } else {
-                            BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                         }
-
                         Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = backgroundColor,
+                            border = border,
                             modifier = Modifier
                                 .fillMaxWidth(optionsAndQuestionWidthFraction)
-                                .padding(vertical = 8.dp)
+                                .padding(vertical = 4.dp)
                                 .heightIn(min = 56.dp)
                                 .selectable(
                                     selected = isSelected,
                                     onClick = { onAnswerCodeChanged(optionCode) },
                                     role = Role.RadioButton
-                                ),
-                            shape = RoundedCornerShape(12.dp),
-                            color = backgroundColor,
-                            border = border,
-                            shadowElevation = if (isSelected) 4.dp else 1.dp
+                                )
                         ) {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.CenterStart,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             ) {
                                 Text(
                                     text = optionText,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Medium,
                                     color = textColorForButton,
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Start
                                 )
                             }
                         }

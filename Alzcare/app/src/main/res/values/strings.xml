@@ -1,3 +1,67 @@
 <resources>
-    <string name="app_name">Alzcare</string>
+    <string name="app_name">AlzCare</string>
+
+    <!-- Common Buttons -->
+    <string name="next_button">Next</string>
+    <string name="back_button">Back</string>
+    <string name="submit_button">Submit</string>
+
+    <!-- General Labels -->
+    <string name="selected_value">Selected: %1$s</string> <!-- For sliders, e.g., "Selected: 75" -->
+
+    <!-- Question Page -->
+    <string name="question_progress">Question %1$d of %2$d</string> <!-- e.g., "Question 5 of 32" -->
+    <string name="speak_question_content_description">Read question aloud</string>
+    <string name="speak_answer_content_description">Speak your answer</string>
+    <string name="text_answer_label">Your answer</string>
+    <string name="number_answer_label">Your answer (whole number)</string>
+    <string name="decimal_answer_label">Your answer (e.g., 24.5)</string>
+
+    <!-- Prediction Result Screen -->
+    <string name="assessment_results_title">Assessment Results</string>
+    <string name="patient_id_label">Patient ID:</string>
+    <string name="risk_score_label">Risk Score:</string>
+    <string name="reliability_score_label">Reliability Score:</string>
+    <string name="next_steps_title">Next Steps</string>
+
+    <!-- All Questionnaire Titles -->
+    <string name="q_age_title">What is your current age? (60-90)</string>
+    <string name="q_gender_title">What is your gender?</string>
+    <string name="q_education_title">What is your highest level of education?</string>
+    <string name="q_smoking_title">Do you currently smoke?</string>
+    <string name="q_alcohol_title">How many units of alcohol do you consume weekly? (0-20 units)</string>
+    <string name="q_activity_title">How many hours of physical activity do you engage in weekly? (0-10 hours)</string>
+    <string name="q_diet_title">On a scale of 0 to 10, how would you rate your diet quality?</string>
+    <string name="q_sleep_title">On a scale of 4 to 10, how would you rate your sleep quality?</string>
+    <string name="q_family_history_title">Do you have a family history of Alzheimer\'s Disease?</string>
+    <string name="q_cardiovascular_title">Have you been diagnosed with cardiovascular disease?</string>
+    <string name="q_diabetes_title">Have you been diagnosed with diabetes?</string>
+    <string name="q_depression_title">Have you been diagnosed with depression?</string>
+    <string name="q_head_injury_title">Do you have a history of significant head injury?</string>
+    <string name="q_hypertension_title">Have you been diagnosed with hypertension (high blood pressure)?</string>
+    <string name="q_hdl_cholesterol_title">What is your HDL Cholesterol level (mg/dL)? (20-100)</string>
+    <string name="q_mmse_title">What is your Mini-Mental State Examination (MMSE) score? (0-30, lower scores indicate impairment)</string>
+    <string name="q_functional_assessment_title">What is your Functional Assessment score? (0-10, lower scores indicate greater impairment)</string>
+    <string name="q_memory_complaints_title">Do you experience memory complaints?</string>
+    <string name="q_behavioral_problems_title">Have you experienced behavioral problems recently?</string>
+    <string name="q_confusion_title">Do you experience episodes of confusion?</string>
+    <string name="q_disorientation_title">Do you experience episodes of disorientation (e.g., to time or place)?</string>
+    <string name="q_personality_changes_title">Have you noticed significant personality changes?</string>
+    <string name="q_task_difficulty_title">Do you have difficulty completing familiar tasks?</string>
+    <string name="q_forgetfulness_title">Do you experience significant forgetfulness beyond what is typical?</string>
+
+    <!-- Options for Single Choice Questions -->
+    <!-- Gender -->
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <!-- Education -->
+    <string name="education_none">None</string>
+    <string name="education_primary">Primary School</string>
+    <string name="education_secondary">Secondary School</string>
+    <string name="education_bachelors">Bachelor\'s Degree</string>
+    <string name="education_masters">Master\'s Degree or Higher</string>
+    <!-- Generic Yes/No -->
+    <string name="option_yes">Yes</string>
+    <string name="option_no">No</string>
+
 </resources>
