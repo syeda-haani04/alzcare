@@ -3,9 +3,8 @@ package com.risc.alzcare.ui.questionnaire
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.risc.alzcare.network.ApiInterface
-import com.risc.alzcare.network.RetrofitInstance
-import com.risc.alzcare.network.model.PatientDataPayload
+import com.risc.alzcare.network.*
+import com.risc.alzcare.network.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +12,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 val sampleQuestions: List<Question> = listOf(
-    Question(id = "Age", text = "What is your current age? (60-90)", answerType = AnswerType.NUMBER_INTEGER),
+    Question(
+        id = "Age",
+        text = "What is your current age? (60-90)",
+        answerType = AnswerType.NUMBER_INTEGER
+    ),
     Question(
         id = "Gender",
         text = "What is your gender?",
@@ -119,7 +122,11 @@ val sampleQuestions: List<Question> = listOf(
         answerType = AnswerType.SINGLE_CHOICE,
         options = getYesNoOptions()
     ),
-    Question(id = "ADL", text = "What is your Activities of Daily Living (ADL) score? (0-10, lower scores indicate greater impairment)", answerType = AnswerType.NUMBER_INTEGER),
+    Question(
+        id = "ADL",
+        text = "What is your Activities of Daily Living (ADL) score? (0-10, lower scores indicate greater impairment)",
+        answerType = AnswerType.NUMBER_INTEGER
+    ),
     Question(
         id = "Confusion",
         text = "Do you experience episodes of confusion?",
@@ -157,8 +164,9 @@ data class QuestionnaireUiState(
     val currentPage: Int = 0,
     val answers: Map<String, String> = emptyMap(),
     val isLastPage: Boolean = false,
-    val submissionStatus: String? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val predictionNavTrigger: PostResponse? = null,
+    val submissionError: String? = null
 )
 
 class QuestionnaireViewModel : ViewModel() {
@@ -191,7 +199,7 @@ class QuestionnaireViewModel : ViewModel() {
 
     fun submitQuestionnaire() {
         val currentAnswers = uiState.value.answers
-        _uiState.update { it.copy(isLoading = true, submissionStatus = "Submitting...") }
+        _uiState.update { it.copy(isLoading = true, predictionNavTrigger = null, submissionError = null) }
 
         viewModelScope.launch {
             try {
@@ -235,18 +243,32 @@ class QuestionnaireViewModel : ViewModel() {
 
                 if (response.isSuccessful) {
                     val postResponse = response.body()
-                    val successMessage = postResponse?.message ?: "Submitted successfully!"
-                    val riskScoreMessage = postResponse?.riskScore?.let { " Risk Score: $it" } ?: ""
-                    _uiState.update { it.copy(submissionStatus = "$successMessage$riskScoreMessage") }
-                    Log.d("QuestionnaireVM", "Submission Success: Status - ${postResponse?.status}, Message - ${postResponse?.message}, Risk - ${postResponse?.riskScore}")
+                    if (postResponse != null && postResponse.success == true) {
+                        _uiState.update {
+                            it.copy(predictionNavTrigger = postResponse)
+                        }
+                        Log.d("QuestionnaireVM", "Submission Success: Ready for navigation. Status - ${postResponse.status}, Message - ${postResponse.message}")
+                    } else {
+                        val errorMessage = postResponse?.message ?: "Server indicated an issue with the submission."
+                        _uiState.update {
+                            it.copy(submissionError = errorMessage)
+                        }
+                        Log.e("QuestionnaireVM", "Submission not fully successful by backend: ${postResponse?.message}")
+                    }
                 } else {
                     val errorBody = response.errorBody()?.string()
-                    _uiState.update { it.copy(submissionStatus = "Error ${response.code()}: ${errorBody ?: "Unknown server error"}") }
-                    Log.e("QuestionnaireVM", "Submission Error: ${response.code()} - $errorBody")
+                    val errorMessage = "Error ${response.code()}: ${errorBody ?: "Unknown server error"}"
+                    _uiState.update {
+                        it.copy(submissionError = errorMessage)
+                    }
+                    Log.e("QuestionnaireVM", "Submission HTTP Error: ${response.code()} - $errorBody")
                 }
 
             } catch (e: Exception) {
-                _uiState.update { it.copy(submissionStatus = "Submission failed: ${e.message ?: "Network error"}") }
+                val errorMessage = "Submission failed: ${e.message ?: "Network error"}"
+                _uiState.update {
+                    it.copy(submissionError = errorMessage)
+                }
                 Log.e("QuestionnaireVM", "Submission Exception", e)
             } finally {
                 _uiState.update { it.copy(isLoading = false) }
@@ -254,7 +276,11 @@ class QuestionnaireViewModel : ViewModel() {
         }
     }
 
-    fun clearSubmissionStatus() {
-        _uiState.update { it.copy(submissionStatus = null) }
+    fun predictionNavigated() {
+        _uiState.update { it.copy(predictionNavTrigger = null) }
+    }
+
+    fun clearSubmissionError() {
+        _uiState.update { it.copy(submissionError = null) }
     }
 }

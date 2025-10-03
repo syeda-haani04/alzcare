@@ -15,6 +15,11 @@ data class PostResponse(
     val patientId: Int? = null,
     @SerialName("risk_score")
     val riskScore: Double? = null,
+    @SerialName("reliability_score")
+    val reliabilityScore: Double? = null,
     @SerialName("data")
-    val data: ResponseData? = null
+    val data: ResponseData? = null,
+    @SerialName("next_steps")
+    val nextSteps: String? = null
+
 )

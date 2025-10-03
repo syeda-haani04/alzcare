@@ -141,7 +141,8 @@ class PatientDataViewModel : ViewModel() {
                         Log.d("PATIENT_VM_SUCCESS", "Server Status: ${postResponse.status}, Message: ${postResponse.message}")
                         _serverMessage.value = postResponse.message ?: "Success!"
                         val riskScoreText = postResponse.riskScore?.let { "Risk Score: $it" } ?: "Risk score not available."
-                        _predictionResult.value = riskScoreText
+                        val reliabilityScoreText = postResponse.reliabilityScore?.let { "Reliability Score: $it" } ?: "Reliability score not available."
+                        _predictionResult.value = riskScoreText + reliabilityScoreText
 
                         _uiState.update {
                             it.copy(
