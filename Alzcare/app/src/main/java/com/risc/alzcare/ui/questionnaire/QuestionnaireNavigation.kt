@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import com.risc.alzcare.R
 
 @Composable
 fun QuestionnaireNavigation(
@@ -89,7 +91,7 @@ fun QuestionnaireNavigation(
             }
         }
 
-        val buttonText = if (isLastPage) "Submit" else "Next"
+        val buttonText = if (isLastPage) R.string.submit_button else R.string.next_button
         Button(
             onClick = if (isLastPage) onSubmit else onNext,
             enabled = !isLoading,
@@ -109,7 +111,7 @@ fun QuestionnaireNavigation(
                 )
             } else {
                 Text(
-                    text = buttonText,
+                    text = stringResource(buttonText),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
